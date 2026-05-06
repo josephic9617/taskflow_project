@@ -1,9 +1,9 @@
 <template>
-  <div class="task-card" :class="{ selected }" @contextmenu.prevent="openMenu">
+  <div class="task-card" :class="{ selected, 'group-dragging': groupDragging }" :data-type="'task'" :data-id="task.id" :data-title="task.title" @contextmenu.prevent="openMenu">
     <div class="task-actions">
       <input type="checkbox" :checked="selected" @click.stop="$emit('toggle-select')" class="item-checkbox" />
-      <button class="btn-icon btn-sm" @click.stop="$emit('edit', task)" title="Edit task">✏️</button>
-      <button class="btn-icon btn-sm" @click.stop="$emit('delete', task.id)" title="Delete task" style="color:var(--red)">🗑</button>
+      <button draggable="false" class="btn-icon btn-sm" @click.stop="$emit('edit', task)" title="Edit task">✏️</button>
+      <button draggable="false" class="btn-icon btn-sm" @click.stop="$emit('delete', task.id)" title="Delete task" style="color:var(--red)">🗑</button>
     </div>
     <div class="task-card-top">
       <div class="task-title">{{ task.title }}</div>
@@ -54,6 +54,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 const props = defineProps({
   task: Object,
   selected: Boolean,
+  groupDragging: Boolean,
 })
 const emit = defineEmits(['edit', 'delete', 'toggle-select'])
 

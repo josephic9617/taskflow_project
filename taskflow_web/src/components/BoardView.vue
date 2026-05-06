@@ -50,7 +50,10 @@
       <VueDraggable
         v-model="board.columns"
         :group="{ name: 'columns', pull: true, put: false }"
+        filter="button, input, textarea, select"
+        :preventOnFilter="false"
         style="display:flex;gap:16px;align-items:flex-start"
+        @start="onColumnDragStart"
         @end="onColumnDragEnd"
       >
         <ColumnCard
@@ -59,11 +62,14 @@
           :column="col"
           :allColumns="board.columns"
           :selectedItems="selectedItems"
+          :groupDragKeys="groupDragKeys"
           @toggle-select="$emit('toggle-select', $event)"
           @add-task="openAddTask"
           @edit-task="openEditTask"
           @delete-task="deleteTask"
           @delete-column="deleteColumn"
+          @drag-selection-start="$emit('drag-selection-start', $event)"
+          @drag-selection-end="$emit('drag-selection-end')"
           @task-moved="onTaskMoved"
           @update-column="updateColumn"
         />
@@ -110,11 +116,15 @@ import { ref, watch, nextTick, onUnmounted, computed } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import ColumnCard from './ColumnCard.vue'
 import TaskModal from './TaskModal.vue'
-import { columnsApi, tasksApi } from '../services/api.js'
+import { columnsApi, tasksApi, getErrorMessage } from '../services/api.js'
 import { BoardWebSocket } from '../services/websocket.js'
 
-const props = defineProps({ board: Object, loading: Boolean, selectedItems: Array })
-const emit = defineEmits(['refresh', 'ws-status', 'toggle-select'])
+const props = defineProps({ board: Object, loading: Boolean, selectedItems: Array, groupDragKeys: Array })
+const emit = defineEmits(['refresh', 'ws-status', 'toggle-select', 'error', 'drag-selection-start', 'drag-selection-end'])
+
+function confirmDelete(message) {
+  return window.confirm(message)
+}
 
 // --- Filter & Search ---
 const searchQuery = ref('')
@@ -154,27 +164,39 @@ watch(showAddColumnInput, async (v) => {
 
 async function addColumn() {
   if (!newColumnTitle.value.trim()) return
-  const maxOrder = props.board.columns.length
-  await columnsApi.create({
-    board: props.board.id,
-    title: newColumnTitle.value.trim(),
-    order: maxOrder,
-  })
-  newColumnTitle.value = ''
-  showAddColumnInput.value = false
-  emit('refresh')
+  try {
+    const maxOrder = props.board.columns.length
+    await columnsApi.create({
+      board: props.board.id,
+      title: newColumnTitle.value.trim(),
+      order: maxOrder,
+    })
+    newColumnTitle.value = ''
+    showAddColumnInput.value = false
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to add column'))
+  }
 }
 
 async function deleteColumn(colId) {
-  if (!confirm('Delete this column and all its tasks?')) return
-  await columnsApi.delete(colId)
-  emit('refresh')
+  if (!confirmDelete('Delete this column and all its tasks?')) return
+  try {
+    await columnsApi.delete(colId)
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to delete column'))
+  }
 }
 
 async function updateColumn(payload) {
-  const { id, ...data } = payload
-  await columnsApi.update(id, data)
-  emit('refresh')
+  try {
+    const { id, ...data } = payload
+    await columnsApi.update(id, data)
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to update column'))
+  }
 }
 
 // --- Task Modal ---
@@ -188,33 +210,62 @@ function openEditTask(task) {
 }
 
 async function onTaskCreated(payload) {
-  await tasksApi.create(payload)
-  taskModal.value.open = false
-  emit('refresh')
+  try {
+    await tasksApi.create(payload)
+    taskModal.value.open = false
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to create task'))
+  }
 }
 
 async function onTaskUpdated(payload) {
-  const { id, ...data } = payload
-  await tasksApi.update(id, data)
-  taskModal.value.open = false
-  emit('refresh')
+  try {
+    const { id, ...data } = payload
+    await tasksApi.update(id, data)
+    taskModal.value.open = false
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to update task'))
+  }
 }
 
 async function deleteTask(taskId) {
-  await tasksApi.delete(taskId)
-  emit('refresh')
+  if (!confirmDelete('Delete this task?')) return
+  try {
+    await tasksApi.delete(taskId)
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to delete task'))
+  }
 }
 
 // --- Drag & Drop ---
 async function onColumnDragEnd(evt) {
+  emit('drag-selection-end')
   // We'll implement column re-ordering if needed, but for now just to allow dragging out
   // The trash handles the deletion if dropped there.
 }
 
+function onColumnDragStart(evt) {
+  const column = props.board?.columns?.[evt.oldIndex]
+  if (!column) return
+  emit('drag-selection-start', {
+    type: 'column',
+    id: column.id,
+    title: column.title,
+    boardId: column.board,
+  })
+}
+
 async function onTaskMoved(payload) {
-  await tasksApi.move(payload)
-  // Board will update via WebSocket broadcast OR re-fetch
-  emit('refresh')
+  try {
+    await tasksApi.move(payload)
+    emit('refresh')
+  } catch (error) {
+    emit('error', getErrorMessage(error, 'Failed to move task'))
+    emit('refresh')
+  }
 }
 
 // --- WebSocket ---

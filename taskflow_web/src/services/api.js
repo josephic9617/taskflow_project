@@ -27,4 +27,19 @@ export const tasksApi = {
   move: (data) => api.post('/tasks/move/', data),
 }
 
+export function getErrorMessage(error, fallback = 'Something went wrong') {
+  if (axios.isAxiosError(error)) {
+    const detail = error.response?.data?.detail
+    const firstError = Object.values(error.response?.data || {})
+      .flat()
+      .find(Boolean)
+
+    if (typeof detail === 'string') return detail
+    if (typeof firstError === 'string') return firstError
+    if (error.message) return error.message
+  }
+
+  return error instanceof Error ? error.message : fallback
+}
+
 export default api
