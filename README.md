@@ -1,15 +1,29 @@
 # ⚡ TaskFlow — Premium Kanban Management System
 
-TaskFlow is a high-performance, real-time task management application inspired by Notion's clean aesthetics and Jira's functional power. Built with a modern full-stack architecture, it demonstrates the seamless integration of asynchronous backend services with a reactive frontend.
+<div align="center">
+  <img src="screenshots/image-1.png" alt="TaskFlow Board" width="100%">
+</div>
 
+TaskFlow is a high-performance, real-time task management application inspired by Notion's clean aesthetics and Jira's functional power. Built with a modern full-stack architecture, it demonstrates the seamless integration of asynchronous backend services with a reactive frontend.
 ## 🚀 Key Features
 
 - **Real-time Collaboration**: Instant task updates across all connected clients via WebSockets (Django Channels).
 - **Dynamic Kanban Engine**: Smooth, performant drag-and-drop task movement between columns.
-- **Premium Design System**: A custom-built, dark-mode CSS architecture featuring glassmorphism, glowing micro-interactions, and fluid transitions.
-- **Multi-Workspace Management**: Create, edit, and organize multiple boards for different projects.
+- **Bulk Operations & Drag-to-Delete**: Multi-select items and drag them to the Trash zone to delete multiple tasks, columns, or entire boards instantly.
+- **Premium Design System**: A custom-built, dark-mode CSS architecture featuring glassmorphism, glowing micro-interactions, full-screen empty states, and fluid transitions.
+- **Multi-Workspace Management**: Create, edit, and organize multiple boards for different projects, each with custom colors that reflect throughout the UI.
 - **Rich Task Metadata**: Categorize tasks with priorities (Low to Urgent), labels (Bug, Feature, etc.), and due dates.
 - **Auto-Seeding**: Get started instantly with a sample workspace populated with realistic project data.
+
+## 📸 Screenshots
+
+### The Kanban Board
+![TaskFlow Board](screenshots/image-1.png)
+*TaskFlow's full-screen Kanban board with a glassmorphism toolbar, task multi-select, and workspace accent colors.*
+
+### Premium Welcome Screen
+![TaskFlow Empty State](screenshots/image-2.png)
+*The animated, full-screen welcome view when no boards are selected.*
 
 ## 🛠️ Technology Stack
 
