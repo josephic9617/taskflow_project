@@ -24,15 +24,15 @@ This project demonstrates real-time system design, WebSocket architecture, and c
 ## 📸 Screenshots
 
 ### 🎨 The Kanban Board
-![TaskFlow Board](screenshots/image-1.png)
+![TaskFlow Board](screenshots/image-3.png)
 *Full-screen interactive board with live WebSocket synchronization.*
 
 ### 🔐 Secure Login
-![TaskFlow Login](screenshots/image-2.png)
+![TaskFlow Login](screenshots/image-1.png)
 *Premium JWT-based authentication screen with glassmorphism design.*
 
 ### 🚀 Welcome Experience
-![TaskFlow Welcome](screenshots/image-3.png)
+![TaskFlow Welcome](screenshots/image-2.png)
 *Dynamic hero state for new users and empty workspaces.*
 
 ## ⚡ Real-time Engine
