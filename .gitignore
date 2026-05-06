@@ -1,0 +1,30 @@
+# Python / Django
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+media/
+staticfiles/
+
+# Node / Vue
+node_modules/
+dist/
+dist-ssr/
+.DS_Store
+*.local
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Env
+.env
+.env.local
+.env.*.local
