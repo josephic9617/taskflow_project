@@ -5,6 +5,11 @@
 </div>
 
 TaskFlow is a high-performance, real-time task management application inspired by Notion's clean aesthetics and Jira's functional power. Built with a modern full-stack architecture, it demonstrates the seamless integration of asynchronous backend services with a reactive frontend.
+
+## 🎯 Purpose
+
+This project demonstrates real-time system design, WebSocket architecture, and complex UI state management in a production-like environment. It goes beyond standard CRUD applications by showcasing live data synchronization and premium front-end architectural patterns.
+
 ## 🚀 Key Features
 
 - **Real-time Collaboration**: Instant task updates across all connected clients via WebSockets (Django Channels).
@@ -24,6 +29,26 @@ TaskFlow is a high-performance, real-time task management application inspired b
 ### Premium Welcome Screen
 ![TaskFlow Empty State](screenshots/image-2.png)
 *The animated, full-screen welcome view when no boards are selected.*
+
+## ⚡ Real-time Engine
+
+TaskFlow uses **Django Channels** to maintain persistent WebSocket connections. 
+
+**Events Broadcasted:**
+- `task.created`
+- `task.updated`
+- `task.deleted`
+- `column.moved`
+
+All connected clients receive updates instantly, enabling a seamless multi-user collaboration experience.
+
+## 🔗 API Overview
+
+The core backend services are exposed via a clean REST interface:
+- `GET    /api/boards/`
+- `POST   /api/tasks/`
+- `PATCH  /api/tasks/{id}/`
+- `DELETE /api/tasks/{id}/`
 
 ## 🛠️ Technology Stack
 
@@ -56,7 +81,7 @@ taskflow_project/
 │   │   ├── App.vue       # Main application shell
 │   │   └── style.css     # Premium design system
 │   └── package.json
-└── venv/                 # Shared Python Virtual Environment
+└── .venv/                # Shared Python Virtual Environment (managed by uv)
 ```
 
 ## ⚙️ Setup & Installation
@@ -66,8 +91,12 @@ taskflow_project/
 # Enter backend directory
 cd taskflow_api
 
-# Install dependencies
-pip install -r requirements.txt
+# Create and activate virtual environment using uv
+uv venv
+source .venv/bin/activate
+
+# Install dependencies blazingly fast
+uv pip install -r requirements.txt
 
 # Run migrations
 python manage.py migrate
@@ -87,6 +116,17 @@ npm install
 # Start the development server
 npm run dev
 ```
+
+## ☁️ Deployment
+
+- **Backend**: Daphne + Nginx (for routing HTTP and WebSocket traffic)
+- **Frontend**: Vite build (served as static files)
+- **Recommended**: Docker Compose (containerized orchestration)
+
+## 🔒 Roadmap
+
+- **Authentication**: Implementing simple login (JWT / Session) to restrict board access.
+- **User Roles**: Differentiating workspace owners and read-only members.
 
 ## 📜 License
 This project is for demonstration purposes. Feel free to use and extend it!
