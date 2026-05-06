@@ -5,6 +5,33 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+// --- Interceptors ---
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`
+  }
+  return config
+})
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      // Clear token and trigger custom event for App.vue to pick up
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      window.dispatchEvent(new CustomEvent('auth-unauthorized'))
+    }
+    return Promise.reject(error)
+  }
+)
+
+export const authApi = {
+  login: (username, password) => api.post('/token/', { username, password }),
+  refresh: (refresh) => api.post('/token/refresh/', { refresh }),
+}
+
 export const boardsApi = {
   list: () => api.get('/boards/'),
   get: (id) => api.get(`/boards/${id}/`),

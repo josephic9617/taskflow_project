@@ -13,6 +13,7 @@ This project demonstrates real-time system design, WebSocket architecture, and c
 ## 🚀 Key Features
 
 - **Real-time Collaboration**: Instant task updates across all connected clients via WebSockets (Django Channels).
+- **Secure JWT Authentication**: Protected workspaces with a custom-built login system using JSON Web Tokens.
 - **Dynamic Kanban Engine**: Smooth, performant drag-and-drop task movement between columns.
 - **Bulk Operations & Drag-to-Delete**: Multi-select items and drag them to the Trash zone to delete multiple tasks, columns, or entire boards instantly.
 - **Premium Design System**: A custom-built, dark-mode CSS architecture featuring glassmorphism, glowing micro-interactions, full-screen empty states, and fluid transitions.
@@ -22,13 +23,17 @@ This project demonstrates real-time system design, WebSocket architecture, and c
 
 ## 📸 Screenshots
 
-### The Kanban Board
+### 🎨 The Kanban Board
 ![TaskFlow Board](screenshots/image-1.png)
-*TaskFlow's full-screen Kanban board with a glassmorphism toolbar, task multi-select, and workspace accent colors.*
+*Full-screen interactive board with live WebSocket synchronization.*
 
-### Premium Welcome Screen
-![TaskFlow Empty State](screenshots/image-2.png)
-*The animated, full-screen welcome view when no boards are selected.*
+### 🔐 Secure Login
+![TaskFlow Login](screenshots/image-2.png)
+*Premium JWT-based authentication screen with glassmorphism design.*
+
+### 🚀 Welcome Experience
+![TaskFlow Welcome](screenshots/image-3.png)
+*Dynamic hero state for new users and empty workspaces.*
 
 ## ⚡ Real-time Engine
 
@@ -45,10 +50,12 @@ All connected clients receive updates instantly, enabling a seamless multi-user 
 ## 🔗 API Overview
 
 The core backend services are exposed via a clean REST interface:
-- `GET    /api/boards/`
-- `POST   /api/tasks/`
-- `PATCH  /api/tasks/{id}/`
-- `DELETE /api/tasks/{id}/`
+- `POST   /api/token/`         - Obtain JWT Access & Refresh tokens
+- `POST   /api/token/refresh/` - Refresh expired access tokens
+- `GET    /api/boards/`        - List all boards
+- `POST   /api/tasks/`         - Create new task
+- `PATCH  /api/tasks/{id}/`    - Update task details
+- `DELETE /api/tasks/{id}/`    - Remove task
 
 ## 🛠️ Technology Stack
 
@@ -123,10 +130,15 @@ npm run dev
 - **Frontend**: Vite build (served as static files)
 - **Recommended**: Docker Compose (containerized orchestration)
 
-## 🔒 Roadmap
+## 🔒 Security & Auth
 
-- **Authentication**: Implementing simple login (JWT / Session) to restrict board access.
+- **JWT Authentication**: Full-stack protected access using JSON Web Tokens.
+- **CORS Management**: Restricted to authorized origins for API security.
+
+## 🚀 Roadmap
+
 - **User Roles**: Differentiating workspace owners and read-only members.
+- **File Attachments**: Uploading documents directly to tasks.
 
 ## 📜 License
 This project is for demonstration purposes. Feel free to use and extend it!

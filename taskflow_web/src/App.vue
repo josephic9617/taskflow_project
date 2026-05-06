@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div v-if="isAuthenticated" style="display:flex;width:100%;height:100%">
     <!-- Sidebar -->
     <aside class="sidebar slide-in-left">
       <!-- Logo -->
@@ -95,10 +95,13 @@
           {{ activeBoard ? activeBoard.title : 'Select a Board' }}
         </span>
 
-        <!-- WS status badge -->
-        <div class="topbar-ws-badge">
-          <span class="ws-dot" :class="{ connected: wsConnected }" />
-          {{ wsConnected ? 'Live' : 'Offline' }}
+        <!-- Topbar Right -->
+        <div class="flex items-center gap-3">
+          <span class="topbar-ws-badge" title="WebSocket Status">
+            <span class="ws-dot" :class="{ connected: wsConnected }" />
+            {{ wsConnected ? 'Live Sync' : 'Disconnected' }}
+          </span>
+          <button class="btn btn-ghost btn-sm" @click="logout" title="Sign out">Logout</button>
         </div>
 
         <!-- Seed button -->
@@ -177,14 +180,38 @@
       @updated="onBoardUpdated"
     />
   </div>
+
+  <LoginView v-else @login-success="onLoginSuccess" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import BoardView from './components/BoardView.vue'
 import BoardModal from './components/BoardModal.vue'
+import LoginView from './components/LoginView.vue'
 import { boardsApi, columnsApi, tasksApi, getErrorMessage } from './services/api.js'
+
+// --- Auth State ---
+const isAuthenticated = ref(!!localStorage.getItem('access_token'))
+
+function onLoginSuccess() {
+  isAuthenticated.value = true
+  loadBoards()
+}
+
+function logout() {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  isAuthenticated.value = false
+  boards.value = []
+  activeBoard.value = null
+}
+
+function handleUnauthorized() {
+  logout()
+  showNotice('error', 'Session expired. Please sign in again.')
+}
 
 const boards = ref([])
 const activeBoard = ref(null)
@@ -286,14 +313,6 @@ function normalizeItemsForDeletion(items) {
     .filter(item => !(item.type === 'task' && item.columnId && selectedColumnIds.has(item.columnId)))
     .filter(item => !(item.type === 'task' && item.boardId && selectedBoardIds.has(item.boardId)))
     .sort((a, b) => ({ task: 0, column: 1, board: 2 }[a.type] ?? 99) - ({ task: 0, column: 1, board: 2 }[b.type] ?? 99))
-}
-
-function inferDraggedItem(item) {
-  if (!item) return null
-  if ('task_count' in item) return { type: 'board', id: item.id, title: item.title }
-  if ('tasks' in item) return { type: 'column', id: item.id, title: item.title, boardId: item.board }
-  if ('priority' in item) return { type: 'task', id: item.id, title: item.title, columnId: item.column }
-  return null
 }
 
 async function deleteItems(items) {
@@ -506,12 +525,17 @@ function openApiDocs() {
   window.open('http://localhost:8000/api/', '_blank')
 }
 
-onMounted(async () => {
-  try {
-    await loadBoards()
-    if (boards.value.length) selectBoard(boards.value[0].id)
-  } catch (error) {
-    showNotice('error', getErrorMessage(error, 'Failed to load boards'))
+// --- Lifecycle ---
+onMounted(() => {
+  window.addEventListener('auth-unauthorized', handleUnauthorized)
+  if (isAuthenticated.value) {
+    loadBoards().then(() => {
+      if (boards.value.length) selectBoard(boards.value[0].id)
+    })
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('auth-unauthorized', handleUnauthorized)
 })
 </script>
