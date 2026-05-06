@@ -1,7 +1,7 @@
 # ⚡ TaskFlow — Premium Kanban Management System
 
 <div align="center">
-  <img src="screenshots/image-1.png" alt="TaskFlow Board" width="100%">
+  <img src="screenshots/image-3.png" alt="TaskFlow Board" width="100%">
 </div>
 
 TaskFlow is a high-performance, real-time task management application inspired by Notion's clean aesthetics and Jira's functional power. Built with a modern full-stack architecture, it demonstrates the seamless integration of asynchronous backend services with a reactive frontend.
